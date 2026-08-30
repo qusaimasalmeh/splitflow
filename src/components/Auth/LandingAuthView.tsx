@@ -93,7 +93,7 @@ export const LandingAuthView: React.FC = () => {
           </div>
 
           {/* Controls */}
-          <div className="absolute top-1/2 -translate-y-1/2 w-full flex justify-between px-2 pointer-events-none">
+          <div className="absolute top-1/2 -translate-y-1/2 w-full flex justify-between px-2 pointer-events-none" dir="ltr">
             <button 
               onClick={() => setCurrentSlide(prev => (prev - 1 + CAROUSEL_SLIDES.length) % CAROUSEL_SLIDES.length)}
               className="pointer-events-auto p-2 rounded-full hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-colors"

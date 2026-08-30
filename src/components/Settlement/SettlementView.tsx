@@ -214,7 +214,7 @@ export const SettlementView: React.FC = () => {
                       {state.currency}
                       {s.amount.toFixed(2)}
                     </span>
-                    <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400" />
+                    <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400 rtl:rotate-180 transition-transform" />
                   </div>
 
                   {/* Creditor */}
