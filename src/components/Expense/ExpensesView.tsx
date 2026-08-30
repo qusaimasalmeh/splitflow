@@ -156,9 +156,31 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({ onOpenQuickAdd }) =>
                       {state.currency}
                       {expense.amount.toFixed(2)}
                     </span>
-                    <p className="text-[10px] text-slate-500 font-semibold">
-                      {expense.participants.length} split
+                    <p className="text-[10px] text-slate-500 font-semibold whitespace-nowrap">
+                      {group && expense.participants.length === group.memberIds.length
+                        ? t('splitAmongAll').replace('{count}', String(expense.participants.length))
+                        : group
+                        ? t('splitAmongCount')
+                            .replace('{count}', String(expense.participants.length))
+                            .replace('{total}', String(group.memberIds.length))
+                        : `${expense.participants.length} split`}
                     </p>
+                    {/* Mini participant avatars */}
+                    <div className="flex items-center -space-x-1 rtl:space-x-reverse justify-end mt-0.5">
+                      {expense.participants.map((p) => {
+                        const pUser = state.users.find((u) => u.id === p.userId);
+                        return (
+                          <div
+                            key={p.userId}
+                            title={`${pUser?.name || 'User'}: ${state.currency}${p.amount.toFixed(2)}`}
+                            className="w-3.5 h-3.5 rounded-full border border-white flex items-center justify-center text-[7px] font-bold text-white shadow-xs"
+                            style={{ backgroundColor: pUser?.color || '#14b8a6' }}
+                          >
+                            {pUser?.name.charAt(0) || 'U'}
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
 
                   <button

@@ -19,6 +19,13 @@ export interface Translations {
   amount: string;
   description: string;
   splitEqually: string;
+  splitAmongAll: string;
+  splitAmongCount: string;
+  splitWithCount: string;
+  splitWith: string;
+  splitEquallyBetween: string;
+  selectAll: string;
+  deselectAll: string;
   customSplit: string;
   selectGroup: string;
   createGroup: string;
@@ -285,6 +292,13 @@ export const translations: Record<Language, Translations> = {
     amount: 'How much?',
     description: 'For what?',
     splitEqually: 'Split equally among members',
+    splitAmongAll: 'Split among all ({count})',
+    splitAmongCount: 'Split among {count} of {total}',
+    splitWithCount: 'Split with ({count})',
+    splitWith: 'Split with:',
+    splitEquallyBetween: 'Split equally between',
+    selectAll: 'Select all',
+    deselectAll: 'Deselect all',
     customSplit: 'Custom Split',
     selectGroup: 'Select Group',
     createGroup: 'Create New Group',
@@ -456,6 +470,13 @@ export const translations: Record<Language, Translations> = {
     amount: 'كم المبلغ؟',
     description: 'حق إيش؟',
     splitEqually: 'تقسيم بالتساوي بين الجميع',
+    splitAmongAll: 'مقسم بين الجميع ({count})',
+    splitAmongCount: 'مقسم بين {count} من أصل {total}',
+    splitWithCount: 'التقسيم مع ({count})',
+    splitWith: 'التقسيم مع:',
+    splitEquallyBetween: 'مقسم بالتساوي بين',
+    selectAll: 'تحديد الكل',
+    deselectAll: 'إلغاء تحديد الكل',
     customSplit: 'تقسيم مخصص',
     selectGroup: 'اختر المجموعة',
     createGroup: 'إنشاء مجموعة جديدة',
@@ -627,6 +648,13 @@ export const translations: Record<Language, Translations> = {
     amount: 'כמה שולם?',
     description: 'עבור מה?',
     splitEqually: 'חלוקה שווה בין החברים',
+    splitAmongAll: 'מחולק בין כולם ({count})',
+    splitAmongCount: 'מחולק בין {count} מתוך {total}',
+    splitWithCount: 'חלוקה עם ({count})',
+    splitWith: 'חלוקה עם:',
+    splitEquallyBetween: 'מחולק שווה בין',
+    selectAll: 'בחר הכל',
+    deselectAll: 'בטל בחירה',
     customSplit: 'חלוקה מותאמת אישית',
     selectGroup: 'בחירת קבוצה',
     createGroup: 'יצירת קבוצה חדשה',

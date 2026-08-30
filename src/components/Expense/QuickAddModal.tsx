@@ -23,6 +23,7 @@ export const QuickAddModal: React.FC<QuickAddModalProps> = ({ isOpen, onClose })
   const [description, setDescription] = useState<string>('');
   const [splitMode, setSplitMode] = useState<SplitMode>('equal');
   const [customValues, setCustomValues] = useState<Record<string, number>>({});
+  const [selectedParticipantIds, setSelectedParticipantIds] = useState<string[]>([]);
 
   const currentGroup = state.groups.find((g) => g.id === selectedGroupId) || state.groups[0];
   const groupMembers = state.users.filter((u) => currentGroup?.memberIds.includes(u.id));
@@ -37,6 +38,7 @@ export const QuickAddModal: React.FC<QuickAddModalProps> = ({ isOpen, onClose })
         if (initialGroup.memberIds.length > 0) {
           setPayerId(initialGroup.memberIds[0]);
         }
+        setSelectedParticipantIds(initialGroup.memberIds);
       }
       setAmountStr('');
       setDescription('');
@@ -48,8 +50,11 @@ export const QuickAddModal: React.FC<QuickAddModalProps> = ({ isOpen, onClose })
   const handleGroupChange = (newGroupId: string) => {
     setSelectedGroupId(newGroupId);
     const grp = state.groups.find((g) => g.id === newGroupId);
-    if (grp && !grp.memberIds.includes(payerId)) {
-      setPayerId(grp.memberIds[0] || '');
+    if (grp) {
+      if (!grp.memberIds.includes(payerId)) {
+        setPayerId(grp.memberIds[0] || '');
+      }
+      setSelectedParticipantIds(grp.memberIds);
     }
   };
 
@@ -80,12 +85,20 @@ export const QuickAddModal: React.FC<QuickAddModalProps> = ({ isOpen, onClose })
       return;
     }
 
-    const participants = calculateSplitAmounts(
-      parsedAmount,
-      groupMembers.map((m) => m.id),
-      splitMode,
-      customValues
-    );
+    if (splitMode === 'equal' && selectedParticipantIds.length === 0) {
+      showToast('Please select at least 1 participant', 'warning');
+      return;
+    }
+
+    const participants =
+      splitMode === 'equal'
+        ? calculateSplitAmounts(parsedAmount, selectedParticipantIds, 'equal')
+        : calculateSplitAmounts(
+            parsedAmount,
+            groupMembers.map((m) => m.id),
+            splitMode,
+            customValues
+          );
 
     addExpense({
       groupId: selectedGroupId,
@@ -279,6 +292,74 @@ export const QuickAddModal: React.FC<QuickAddModalProps> = ({ isOpen, onClose })
               Parts
             </button>
           </div>
+
+          {/* Equal Split Participants Selection */}
+          {splitMode === 'equal' && (
+            <div className="mt-3 p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-bold text-slate-700">
+                  {t('splitWithCount').replace('{count}', String(selectedParticipantIds.length))}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (selectedParticipantIds.length === groupMembers.length) {
+                      setSelectedParticipantIds(payerId ? [payerId] : (groupMembers[0] ? [groupMembers[0].id] : []));
+                    } else {
+                      setSelectedParticipantIds(groupMembers.map((m) => m.id));
+                    }
+                  }}
+                  className="text-[11px] font-bold text-emerald-600 hover:text-emerald-700 transition-colors"
+                >
+                  {selectedParticipantIds.length === groupMembers.length ? t('deselectAll') : t('selectAll')}
+                </button>
+              </div>
+
+              <div className="flex flex-wrap gap-1.5">
+                {groupMembers.map((member) => {
+                  const isSelected = selectedParticipantIds.includes(member.id);
+                  return (
+                    <button
+                      key={member.id}
+                      type="button"
+                      onClick={() => {
+                        if (isSelected) {
+                          if (selectedParticipantIds.length > 1) {
+                            setSelectedParticipantIds(selectedParticipantIds.filter((id) => id !== member.id));
+                          } else {
+                            showToast('Must have at least 1 participant', 'warning');
+                          }
+                        } else {
+                          setSelectedParticipantIds([...selectedParticipantIds, member.id]);
+                        }
+                      }}
+                      className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-xs font-semibold transition-all ${
+                        isSelected
+                          ? 'bg-emerald-500 text-white border-emerald-500 shadow-sm'
+                          : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50 opacity-60'
+                      }`}
+                    >
+                      <div
+                        className="w-4 h-4 rounded-full flex items-center justify-center text-[9px] text-white font-bold"
+                        style={{ backgroundColor: member.color || '#14b8a6' }}
+                      >
+                        {member.name.charAt(0)}
+                      </div>
+                      <span>{member.name}</span>
+                      {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {amountStr && parseFloat(amountStr) > 0 && selectedParticipantIds.length > 0 && (
+                <div className="mt-2.5 pt-2 border-t border-slate-200 text-end text-[11px] text-emerald-600 font-bold">
+                  {t('splitEquallyBetween')} {selectedParticipantIds.length}: {state.currency}
+                  {(parseFloat(amountStr) / selectedParticipantIds.length).toFixed(2)} / person
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Custom Split Inputs */}
           {splitMode !== 'equal' && (
