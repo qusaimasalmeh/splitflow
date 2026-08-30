@@ -71,7 +71,6 @@ const MainContent: React.FC = () => {
 
 const AppContainer: React.FC = () => {
   const { state } = useApp();
-  const [isSummaryDismissed, setIsSummaryDismissed] = useState(false);
 
   const summaryData = useMemo(() => {
     if (typeof window === 'undefined') return null;
@@ -83,13 +82,10 @@ const AppContainer: React.FC = () => {
     return null;
   }, []);
 
-  if (summaryData && !isSummaryDismissed) {
+  if (summaryData) {
     return (
       <>
-        <SummaryView
-          summary={summaryData}
-          onOpenFullApp={() => setIsSummaryDismissed(true)}
-        />
+        <SummaryView summary={summaryData} />
         <ToastContainer />
       </>
     );
