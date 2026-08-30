@@ -46,26 +46,27 @@ interface CompactState {
 }
 
 /**
- * Encodes summary data into an ultra-short URI-safe string.
+ * Encodes summary data into an ultra-short URI-safe string using tuple packing.
  */
 export function encodeSummaryToUrlParam(data: PublicSummaryData): string {
   try {
-    const minified: any = {
-      t: data.t,
-      c: data.c,
-      tot: data.tot,
-      s: data.s.map((s) => {
-        const item: any = { f: s.f, t: s.t, a: s.a };
-        if (s.p) item.p = s.p;
-        if (s.pp) item.pp = s.pp;
-        if (s.cg) item.cg = true;
-        return item;
-      }),
-    };
-    if (data.e && data.e.length > 0) {
-      minified.e = data.e.map((e) => ({ d: e.d, a: e.a, p: e.p, sc: e.sc }));
-    }
-    const jsonStr = JSON.stringify(minified);
+    const tuplePacked = [
+      data.t,
+      data.c,
+      data.tot,
+      data.s.map((s) => [
+        s.f,
+        s.t,
+        s.a,
+        s.p || '',
+        s.pp || '',
+        s.cg ? 1 : 0,
+      ]),
+      data.e && data.e.length > 0
+        ? data.e.map((e) => [e.d, e.a, e.p, e.sc || 0])
+        : [],
+    ];
+    const jsonStr = JSON.stringify(tuplePacked);
     return LZString.compressToEncodedURIComponent(jsonStr);
   } catch (err) {
     console.error('Failed to encode summary data:', err);
@@ -75,6 +76,7 @@ export function encodeSummaryToUrlParam(data: PublicSummaryData): string {
 
 /**
  * Decompresses and parses a URI-safe string into PublicSummaryData.
+ * Supports both tuple-packed array format and key-value object format.
  */
 export function decodeSummaryFromUrlParam(param: string): PublicSummaryData | null {
   try {
@@ -83,14 +85,101 @@ export function decodeSummaryFromUrlParam(param: string): PublicSummaryData | nu
     if (!decompressed) return null;
     const parsed = JSON.parse(decompressed);
 
+    // 1. Check if Tuple-packed array format [title, currency, total, settlements, expenses]
+    if (Array.isArray(parsed) && typeof parsed[0] === 'string' && typeof parsed[1] === 'string') {
+      const [title, currency, total, settlementsRaw, expensesRaw] = parsed;
+      const settlements = Array.isArray(settlementsRaw)
+        ? settlementsRaw.map((s: any[]) => ({
+            f: s[0],
+            t: s[1],
+            a: Number(s[2]),
+            p: s[3] ? String(s[3]) : undefined,
+            pp: s[4] ? String(s[4]) : undefined,
+            cg: Boolean(s[5]),
+          }))
+        : [];
+
+      const expenses = Array.isArray(expensesRaw)
+        ? expensesRaw.map((e: any[]) => ({
+            d: String(e[0]),
+            a: Number(e[1]),
+            p: String(e[2]),
+            sc: e[3] ? Number(e[3]) : undefined,
+          }))
+        : [];
+
+      return {
+        t: title,
+        c: currency,
+        tot: Number(total) || 0,
+        s: settlements,
+        e: expenses.length > 0 ? expenses : undefined,
+      };
+    }
+
+    // 2. Check if Object format { t, c, tot, s, e }
     if (parsed && typeof parsed.t === 'string' && Array.isArray(parsed.s)) {
       return parsed as PublicSummaryData;
     }
+
     return null;
   } catch (err) {
     console.error('Failed to decode summary param:', err);
     return null;
   }
+}
+
+/**
+ * Helper to fetch a single shortener provider with timeout.
+ */
+async function fetchShortener(url: string, timeoutMs: number = 2500): Promise<string> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(url, { signal: controller.signal });
+    clearTimeout(timeoutId);
+    if (res.ok) {
+      const text = await res.text();
+      if (text && text.trim().startsWith('http')) {
+        return text.trim();
+      }
+    }
+  } catch (e) {
+    // ignore
+  }
+  throw new Error('Shortener failed');
+}
+
+/**
+ * Attempts to shorten a URL by racing multiple ultra-short link providers in parallel (is.gd, v.gd, clck.ru, TinyURL, ulvis).
+ */
+export async function shortenUrl(longUrl: string): Promise<string> {
+  const encoded = encodeURIComponent(longUrl);
+
+  const providers = [
+    // 1. is.gd (super short ~18 chars)
+    () => fetchShortener(`https://is.gd/create.php?format=simple&url=${encoded}`, 2000),
+    // 2. v.gd (super short ~17 chars)
+    () => fetchShortener(`https://v.gd/create.php?format=simple&url=${encoded}`, 2000),
+    // 3. clck.ru (super short ~16 chars)
+    () => fetchShortener(`https://clck.ru/--?url=${encoded}`, 2200),
+    // 4. ulvis.net (short ~19 chars)
+    () => fetchShortener(`https://ulvis.net/API/write/get?url=${encoded}`, 2200),
+    // 5. TinyURL (reliable ~25 chars)
+    () => fetchShortener(`https://tinyurl.com/api-create.php?url=${encoded}`, 2500),
+  ];
+
+  try {
+    // Race providers concurrently - whichever returns valid short URL first wins!
+    const shortestResult = await Promise.any(providers.map((p) => p()));
+    if (shortestResult && shortestResult.startsWith('http')) {
+      return shortestResult;
+    }
+  } catch (err) {
+    // If all concurrent providers fail/offline, fallback to longUrl
+  }
+
+  return longUrl;
 }
 
 /**
@@ -280,48 +369,6 @@ export function getAppBaseUrl(): string {
   return hrefWithoutQuery.endsWith('/') ? hrefWithoutQuery : `${hrefWithoutQuery}/`;
 }
 
-/**
- * Attempts to shorten a URL using public free shortener APIs (TinyURL / is.gd) with quick fallback.
- */
-export async function shortenUrl(longUrl: string): Promise<string> {
-  // 1. Try TinyURL API
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 2500);
-    const res = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(longUrl)}`, {
-      signal: controller.signal,
-    });
-    clearTimeout(timeoutId);
-    if (res.ok) {
-      const text = await res.text();
-      if (text && text.trim().startsWith('http')) {
-        return text.trim();
-      }
-    }
-  } catch (e) {
-    // Continue to next fallback
-  }
-
-  // 2. Try is.gd API
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 2000);
-    const res = await fetch(`https://is.gd/create.php?format=simple&url=${encodeURIComponent(longUrl)}`, {
-      signal: controller.signal,
-    });
-    clearTimeout(timeoutId);
-    if (res.ok) {
-      const text = await res.text();
-      if (text && text.trim().startsWith('http')) {
-        return text.trim();
-      }
-    }
-  } catch (e) {
-    // Fallback to original
-  }
-
-  return longUrl;
-}
 
 /**
  * Generates an informative, formatted text summary for sharing via WhatsApp or copy-pasting.
