@@ -281,6 +281,49 @@ export function getAppBaseUrl(): string {
 }
 
 /**
+ * Attempts to shorten a URL using public free shortener APIs (TinyURL / is.gd) with quick fallback.
+ */
+export async function shortenUrl(longUrl: string): Promise<string> {
+  // 1. Try TinyURL API
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 2500);
+    const res = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(longUrl)}`, {
+      signal: controller.signal,
+    });
+    clearTimeout(timeoutId);
+    if (res.ok) {
+      const text = await res.text();
+      if (text && text.trim().startsWith('http')) {
+        return text.trim();
+      }
+    }
+  } catch (e) {
+    // Continue to next fallback
+  }
+
+  // 2. Try is.gd API
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 2000);
+    const res = await fetch(`https://is.gd/create.php?format=simple&url=${encodeURIComponent(longUrl)}`, {
+      signal: controller.signal,
+    });
+    clearTimeout(timeoutId);
+    if (res.ok) {
+      const text = await res.text();
+      if (text && text.trim().startsWith('http')) {
+        return text.trim();
+      }
+    }
+  } catch (e) {
+    // Fallback to original
+  }
+
+  return longUrl;
+}
+
+/**
  * Generates an informative, formatted text summary for sharing via WhatsApp or copy-pasting.
  * Generates ultra-short summary links on our own domain.
  */
@@ -332,4 +375,22 @@ export function generateShareSummary(
 
   text += `\n${t('summaryShareLink')} \n${shareableUrl}\n`;
   return text;
+}
+
+/**
+ * Generates the share summary with an automatic tiny short URL via TinyURL.
+ */
+export async function generateShareSummaryAsync(
+  state: AppState,
+  settlements: Settlement[],
+  t: (key: keyof Translations) => string
+): Promise<string> {
+  const base = getAppBaseUrl();
+  const summaryData = createPublicSummary(state, settlements, state.activeGroupId);
+  const encodedSummary = encodeSummaryToUrlParam(summaryData);
+  const separator = base.includes('?') ? '&' : '?';
+  const domainUrl = `${base}${separator}s=${encodedSummary}`;
+
+  const shortLink = await shortenUrl(domainUrl);
+  return generateShareSummary(state, settlements, t, shortLink);
 }
