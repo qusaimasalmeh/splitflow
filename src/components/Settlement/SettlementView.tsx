@@ -4,7 +4,7 @@ import {
   calculateIsolatedSettlements,
   calculateSocialConstrainedGlobalSettlements,
 } from '../../core/netting';
-import { generateShareSummary } from '../../utils/urlEncoder';
+import { generateShareSummaryAsync } from '../../utils/urlEncoder';
 import { GraphVisualizer } from './GraphVisualizer';
 import {
   Sparkles,
@@ -80,14 +80,14 @@ export const SettlementView: React.FC = () => {
     showToast(t('phoneNumberCopied'), 'success');
   };
 
-  const handleShareWhatsApp = () => {
-    const summary = generateShareSummary(state, calculatedSettlements, t, window.location.origin);
+  const handleShareWhatsApp = async () => {
+    const summary = await generateShareSummaryAsync(state, calculatedSettlements, t);
     const encoded = encodeURIComponent(summary);
     window.open(`https://wa.me/?text=${encoded}`, '_blank');
   };
 
-  const handleCopySummary = () => {
-    const summary = generateShareSummary(state, calculatedSettlements, t, window.location.origin);
+  const handleCopySummary = async () => {
+    const summary = await generateShareSummaryAsync(state, calculatedSettlements, t);
     navigator.clipboard.writeText(summary);
     setCopiedId('summary');
     showToast(t('copiedToClipboard'), 'success');
