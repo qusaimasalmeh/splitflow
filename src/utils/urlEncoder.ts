@@ -129,58 +129,6 @@ export function decodeSummaryFromUrlParam(param: string): PublicSummaryData | nu
   }
 }
 
-/**
- * Helper to fetch a single shortener provider with timeout.
- */
-async function fetchShortener(url: string, timeoutMs: number = 2500): Promise<string> {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
-  try {
-    const res = await fetch(url, { signal: controller.signal });
-    clearTimeout(timeoutId);
-    if (res.ok) {
-      const text = await res.text();
-      if (text && text.trim().startsWith('http')) {
-        return text.trim();
-      }
-    }
-  } catch (e) {
-    // ignore
-  }
-  throw new Error('Shortener failed');
-}
-
-/**
- * Attempts to shorten a URL by racing multiple ultra-short link providers in parallel (is.gd, v.gd, clck.ru, TinyURL, ulvis).
- */
-export async function shortenUrl(longUrl: string): Promise<string> {
-  const encoded = encodeURIComponent(longUrl);
-
-  const providers = [
-    // 1. is.gd (super short ~18 chars)
-    () => fetchShortener(`https://is.gd/create.php?format=simple&url=${encoded}`, 2000),
-    // 2. v.gd (super short ~17 chars)
-    () => fetchShortener(`https://v.gd/create.php?format=simple&url=${encoded}`, 2000),
-    // 3. clck.ru (super short ~16 chars)
-    () => fetchShortener(`https://clck.ru/--?url=${encoded}`, 2200),
-    // 4. ulvis.net (short ~19 chars)
-    () => fetchShortener(`https://ulvis.net/API/write/get?url=${encoded}`, 2200),
-    // 5. TinyURL (reliable ~25 chars)
-    () => fetchShortener(`https://tinyurl.com/api-create.php?url=${encoded}`, 2500),
-  ];
-
-  try {
-    // Race providers concurrently - whichever returns valid short URL first wins!
-    const shortestResult = await Promise.any(providers.map((p) => p()));
-    if (shortestResult && shortestResult.startsWith('http')) {
-      return shortestResult;
-    }
-  } catch (err) {
-    // If all concurrent providers fail/offline, fallback to longUrl
-  }
-
-  return longUrl;
-}
 
 /**
  * Builds PublicSummaryData object from the current AppState & Settlements.
@@ -369,10 +317,9 @@ export function getAppBaseUrl(): string {
   return hrefWithoutQuery.endsWith('/') ? hrefWithoutQuery : `${hrefWithoutQuery}/`;
 }
 
-
 /**
  * Generates an informative, formatted text summary for sharing via WhatsApp or copy-pasting.
- * Generates ultra-short summary links on our own domain.
+ * Uses 100% our own domain with ultra-compact summary data.
  */
 export function generateShareSummary(
   state: AppState,
@@ -428,20 +375,10 @@ export function generateShareSummary(
   return text;
 }
 
-/**
- * Generates the share summary with an automatic tiny short URL via TinyURL.
- */
 export async function generateShareSummaryAsync(
   state: AppState,
   settlements: Settlement[],
   t: (key: keyof Translations) => string
 ): Promise<string> {
-  const base = getAppBaseUrl();
-  const summaryData = createPublicSummary(state, settlements, state.activeGroupId);
-  const encodedSummary = encodeSummaryToUrlParam(summaryData);
-  const separator = base.includes('?') ? '&' : '?';
-  const domainUrl = `${base}${separator}s=${encodedSummary}`;
-
-  const shortLink = await shortenUrl(domainUrl);
-  return generateShareSummary(state, settlements, t, shortLink);
+  return generateShareSummary(state, settlements, t);
 }
