@@ -97,34 +97,34 @@ export const SettlementView: React.FC = () => {
   return (
     <div className="space-y-5 pb-24 text-slate-800">
       {/* 1. Mode Switcher & Explanation Banner */}
-      <div className="p-4 rounded-3xl bg-white/60 backdrop-blur-md border border-slate-200  shadow-sm space-y-3">
-        <div className="flex items-center justify-between gap-2">
+      <div className="p-4 rounded-3xl bg-white/60 backdrop-blur-md border border-slate-200 shadow-sm space-y-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
           <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-emerald-600" />
+            <Sparkles className="w-5 h-5 text-emerald-600 shrink-0" />
             <h2 className="text-base font-bold text-slate-900">{t('settle')}</h2>
           </div>
 
           {/* Mode Pill Toggle */}
-          <div className="flex bg-white p-1 rounded-2xl border border-slate-200 text-xs">
+          <div className="grid grid-cols-2 bg-white p-1 rounded-2xl border border-slate-200 text-xs w-full sm:w-auto">
             <button
               onClick={() => setIsGlobalMode(true)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-bold transition-all ${
+              className={`flex items-center justify-center gap-1 px-2.5 py-1.5 rounded-xl font-bold transition-all text-center truncate ${
                 isGlobalMode
-                  ? 'bg-white text-emerald-700 shadow-sm'
+                  ? 'bg-emerald-50 text-emerald-700 shadow-sm'
                   : 'text-slate-600 hover:text-slate-700'
               }`}
             >
-              <Globe className="w-3.5 h-3.5" /> {t('globalNetting')}
+              <Globe className="w-3.5 h-3.5 shrink-0" /> <span className="truncate">{t('globalNetting')}</span>
             </button>
             <button
               onClick={() => setIsGlobalMode(false)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-bold transition-all ${
+              className={`flex items-center justify-center gap-1 px-2.5 py-1.5 rounded-xl font-bold transition-all text-center truncate ${
                 !isGlobalMode
-                  ? 'bg-white text-emerald-700 shadow-sm'
+                  ? 'bg-emerald-50 text-emerald-700 shadow-sm'
                   : 'text-slate-600 hover:text-slate-700'
               }`}
             >
-              <Folder className="w-3.5 h-3.5" /> {t('isolatedNetting')}
+              <Folder className="w-3.5 h-3.5 shrink-0" /> <span className="truncate">{t('isolatedNetting')}</span>
             </button>
           </div>
         </div>
@@ -186,45 +186,45 @@ export const SettlementView: React.FC = () => {
             return (
               <div
                 key={s.id}
-                className={`p-5 rounded-3xl border transition-all duration-300 ${
+                className={`p-4 sm:p-5 rounded-3xl border transition-all duration-300 ${
                   isPaid
                     ? 'bg-slate-50 border-emerald-200 opacity-80'
                     : 'bg-white/60 backdrop-blur-md border-slate-200 shadow-sm hover:border-emerald-300'
                 }`}
               >
                 {/* Header: Debtor -> Creditor */}
-                <div className="flex items-center justify-between gap-3 mb-4">
+                <div className="flex items-center justify-between gap-1.5 sm:gap-3 mb-3.5">
                   {/* Debtor */}
-                  <div className="flex items-center gap-2 min-w-0">
+                  <div className="flex items-center gap-2 min-w-0 flex-1">
                     <div
-                      className="w-10 h-10 rounded-2xl flex items-center justify-center text-sm font-bold text-white shadow-sm shrink-0"
+                      className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl flex items-center justify-center text-xs sm:text-sm font-bold text-white shadow-sm shrink-0"
                       style={{ backgroundColor: debtor?.color || '#8b5cf6' }}
                     >
                       {debtor?.name.charAt(0)}
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm font-bold text-slate-900 truncate">{debtor?.name}</p>
+                      <p className="text-xs sm:text-sm font-bold text-slate-900 truncate">{debtor?.name}</p>
                       <p className="text-[10px] text-rose-500 font-semibold">{t('youOwe')}</p>
                     </div>
                   </div>
 
                   {/* Transfer Arrow & Amount */}
-                  <div className="flex flex-col items-center px-2">
-                    <span className="text-lg font-black text-emerald-600 whitespace-nowrap">
+                  <div className="flex flex-col items-center px-1 shrink-0">
+                    <span className="text-base sm:text-lg font-black text-emerald-600 whitespace-nowrap">
                       {state.currency}
                       {s.amount.toFixed(2)}
                     </span>
-                    <ArrowRight className="w-4 h-4 text-slate-600" />
+                    <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400" />
                   </div>
 
                   {/* Creditor */}
-                  <div className="flex items-center gap-2 min-w-0 text-end">
+                  <div className="flex items-center justify-end gap-2 min-w-0 flex-1 text-end">
                     <div className="min-w-0">
-                      <p className="text-sm font-bold text-slate-900 truncate">{creditor?.name}</p>
+                      <p className="text-xs sm:text-sm font-bold text-slate-900 truncate">{creditor?.name}</p>
                       <p className="text-[10px] text-emerald-600 font-semibold">{t('youAreOwed')}</p>
                     </div>
                     <div
-                      className="w-10 h-10 rounded-2xl flex items-center justify-center text-sm font-bold text-white shadow-sm shrink-0"
+                      className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl flex items-center justify-center text-xs sm:text-sm font-bold text-white shadow-sm shrink-0"
                       style={{ backgroundColor: creditor?.color || '#14b8a6' }}
                     >
                       {creditor?.name.charAt(0)}
@@ -234,21 +234,21 @@ export const SettlementView: React.FC = () => {
 
                 {/* Badges (Cross-group / Route info) */}
                 {s.isCrossGroup && (
-                  <div className="mb-4 flex items-center gap-1.5 px-3 py-1 rounded-xl bg-emerald-50 border border-emerald-100 text-[11px] font-semibold text-emerald-700">
-                    <Layers className="w-3.5 h-3.5" />
-                    <span>{t('crossGroupNettingBadge')}</span>
+                  <div className="mb-3.5 flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-emerald-50 border border-emerald-100 text-[11px] font-semibold text-emerald-700">
+                    <Layers className="w-3.5 h-3.5 shrink-0" />
+                    <span className="truncate">{t('crossGroupNettingBadge')}</span>
                   </div>
                 )}
 
                 {/* Action Buttons (Payment Handoffs) */}
-                <div className="pt-2 border-t border-slate-200 flex flex-wrap items-center gap-2">
+                <div className="pt-2.5 border-t border-slate-200 flex flex-wrap items-center gap-1.5 sm:gap-2">
                   {/* PayPal */}
                   {creditor?.payPalUsername && (
                     <a
                       href={`https://paypal.me/${creditor.payPalUsername}/${s.amount.toFixed(2)}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 text-xs font-semibold transition-all active:scale-95"
+                      className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 text-xs font-semibold transition-all active:scale-95"
                     >
                       <CreditCard className="w-3.5 h-3.5" />
                       <span>{t('payWithPayPal')}</span>
@@ -259,7 +259,7 @@ export const SettlementView: React.FC = () => {
                   {/* Bit (Copy phone number) */}
                   <button
                     onClick={() => handleCopyBit(creditor?.phoneNumber)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-cyan-50 hover:bg-cyan-100 border border-cyan-200 text-cyan-700 text-xs font-semibold transition-all active:scale-95"
+                    className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-cyan-50 hover:bg-cyan-100 border border-cyan-200 text-cyan-700 text-xs font-semibold transition-all active:scale-95"
                   >
                     <CircleDollarSign className="w-3.5 h-3.5" />
                     <span>{t('payWithBit')}</span>
@@ -269,7 +269,7 @@ export const SettlementView: React.FC = () => {
                   {/* PayBox (Copy phone number) */}
                   <button
                     onClick={() => handleCopyBit(creditor?.phoneNumber)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 border border-purple-200 text-purple-700 text-xs font-semibold transition-all active:scale-95"
+                    className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 border border-purple-200 text-purple-700 text-xs font-semibold transition-all active:scale-95"
                   >
                     <Wallet className="w-3.5 h-3.5" />
                     <span>{t('payWithPayBox')}</span>
@@ -279,7 +279,7 @@ export const SettlementView: React.FC = () => {
                   {/* Mark as Paid */}
                   <button
                     onClick={() => toggleSettlementPaid(s)}
-                    className="ms-auto flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all active:scale-95 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 shadow-sm"
+                    className="w-full sm:w-auto sm:ms-auto flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all active:scale-95 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 shadow-sm"
                   >
                     <CheckCircle className="w-3.5 h-3.5 text-emerald-600" />
                     <span>{t('markAsPaid')}</span>

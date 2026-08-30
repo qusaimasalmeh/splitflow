@@ -9,15 +9,33 @@
   }
 
   html, html[data-ui-scale="normal"] {
-    font-size: 18px;
+    font-size: 15px;
+  }
+
+  @media (min-width: 640px) {
+    html, html[data-ui-scale="normal"] {
+      font-size: 16px;
+    }
   }
 
   html[data-ui-scale="large"] {
-    font-size: 21px;
+    font-size: 17px;
+  }
+
+  @media (min-width: 640px) {
+    html[data-ui-scale="large"] {
+      font-size: 18px;
+    }
   }
 
   html[data-ui-scale="xlarge"] {
-    font-size: 24px;
+    font-size: 19px;
+  }
+
+  @media (min-width: 640px) {
+    html[data-ui-scale="xlarge"] {
+      font-size: 20px;
+    }
   }
 
   html[lang="he"] body, html[lang="he"] * {

@@ -22,25 +22,25 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSettings, onOpenHelp }) =>
   ];
 
   return (
-    <div className="sticky top-2 z-40 px-2 md:px-0">
-      <header className="max-w-2xl mx-auto w-full px-4 py-3 glass-panel rounded-2xl shadow-lg flex items-center justify-between gap-2 transition-all">
+    <div className="sticky top-2 z-40 px-2 sm:px-4">
+      <header className="max-w-2xl mx-auto w-full px-3 sm:px-4 py-2.5 sm:py-3 glass-panel rounded-2xl shadow-lg flex items-center justify-between gap-1.5 sm:gap-2 transition-all">
         {/* Brand */}
-        <div className="flex items-center gap-2">
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-500 to-emerald-400 flex items-center justify-center shadow-glow-teal">
-            <Sparkles className="w-5 h-5 text-white" />
+        <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-emerald-500 to-emerald-400 flex items-center justify-center shadow-glow-teal shrink-0">
+            <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
           </div>
-          <div>
-            <h1 className="text-lg font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-emerald-700 to-emerald-500">
+          <div className="min-w-0">
+            <h1 className="text-base sm:text-lg font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-emerald-700 to-emerald-500 truncate">
               {t('appName')}
             </h1>
-            <p className="text-[10px] text-emerald-600 font-medium tracking-wide">
+            <p className="hidden sm:block text-[10px] text-emerald-600 font-medium tracking-wide truncate">
               {isGlobalMode ? t('globalNetting') : activeGroup?.name || t('isolatedNetting')}
             </p>
           </div>
         </div>
 
         {/* Action Controls */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
           {/* Group Selector Pill */}
           <div className="relative">
             <button
@@ -48,13 +48,13 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSettings, onOpenHelp }) =>
                 setIsGroupDropdownOpen(!isGroupDropdownOpen);
                 setIsLangDropdownOpen(false);
               }}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white hover:bg-white border border-white/50  text-xs font-semibold text-slate-700 transition-all active:scale-95 shadow-sm"
+              className="flex items-center gap-1 px-2 sm:px-3 py-1.5 rounded-full bg-white hover:bg-slate-50 border border-slate-200 text-[11px] sm:text-xs font-semibold text-slate-700 transition-all active:scale-95 shadow-sm"
             >
-              <Layers className="w-3.5 h-3.5 text-emerald-600" />
-              <span className="max-w-[100px] truncate">
+              <Layers className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+              <span className="max-w-[65px] sm:max-w-[100px] truncate">
                 {isGlobalMode || !activeGroup ? t('allGroups') : activeGroup.name}
               </span>
-              <ChevronDown className="w-3 h-3 text-slate-400" />
+              <ChevronDown className="w-3 h-3 text-slate-400 shrink-0" />
             </button>
 
             {isGroupDropdownOpen && (
@@ -63,7 +63,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSettings, onOpenHelp }) =>
                   className="fixed inset-0 z-10"
                   onClick={() => setIsGroupDropdownOpen(false)}
                 />
-                <div className="absolute top-full mt-2 end-0 z-20 w-56 rounded-2xl bg-white border border-white/50  shadow-glass-lg p-2 text-xs animate-in fade-in zoom-in-95 duration-150">
+                <div className="absolute top-full mt-2 end-0 z-20 w-52 sm:w-56 rounded-2xl bg-white border border-slate-200 shadow-glass-lg p-2 text-xs animate-in fade-in zoom-in-95 duration-150">
                   <button
                     onClick={() => {
                       setActiveGroupId(null);
@@ -120,10 +120,10 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSettings, onOpenHelp }) =>
                 setIsLangDropdownOpen(!isLangDropdownOpen);
                 setIsGroupDropdownOpen(false);
               }}
-              className="p-2 rounded-full bg-white hover:bg-white border border-white/50 text-slate-600 hover:text-emerald-600 transition-all active:scale-95 shadow-sm"
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 hover:text-emerald-600 transition-all active:scale-95 shadow-sm flex items-center justify-center"
               aria-label="Change Language"
             >
-              <Globe className="w-4 h-4" />
+              <Globe className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </button>
 
             {isLangDropdownOpen && (
@@ -132,7 +132,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSettings, onOpenHelp }) =>
                   className="fixed inset-0 z-10"
                   onClick={() => setIsLangDropdownOpen(false)}
                 />
-                <div className="absolute top-full mt-2 end-0 z-20 w-36 rounded-2xl bg-white border border-white/50  shadow-glass-lg p-1.5 text-xs animate-in fade-in zoom-in-95 duration-150">
+                <div className="absolute top-full mt-2 end-0 z-20 w-36 rounded-2xl bg-white border border-slate-200 shadow-glass-lg p-1.5 text-xs animate-in fade-in zoom-in-95 duration-150">
                   {languages.map((lang) => (
                     <button
                       key={lang.code}
@@ -162,18 +162,19 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSettings, onOpenHelp }) =>
           {/* Help Button */}
           <button
             onClick={onOpenHelp}
-            className="w-9 h-9 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 hover:text-emerald-500 hover:bg-emerald-50 transition-colors"
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white hover:bg-emerald-50 border border-slate-200 flex items-center justify-center text-slate-500 hover:text-emerald-600 transition-colors shadow-sm"
+            aria-label="Help"
           >
-            <HelpCircle className="w-4 h-4" />
+            <HelpCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </button>
 
           {/* Settings Button */}
           <button
             onClick={onOpenSettings}
-            className="p-2 rounded-full bg-white hover:bg-white border border-white/50 text-slate-600 hover:text-emerald-600 transition-all active:scale-95 shadow-sm"
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 hover:text-emerald-600 transition-all active:scale-95 shadow-sm flex items-center justify-center"
             aria-label="Settings"
           >
-            <Settings className="w-4 h-4" />
+            <Settings className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </button>
 
           {/* Sign Out Button */}
@@ -181,11 +182,11 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSettings, onOpenHelp }) =>
             onClick={() => {
               signOut();
             }}
-            className="p-2 rounded-full bg-white hover:bg-rose-50 border border-white/50 text-slate-600 hover:text-rose-600 transition-all active:scale-95 shadow-sm"
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white hover:bg-rose-50 border border-slate-200 text-slate-600 hover:text-rose-600 transition-all active:scale-95 shadow-sm flex items-center justify-center"
             aria-label="Sign Out"
             title={t('signOut')}
           >
-            <LogOut className="w-4 h-4" />
+            <LogOut className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </button>
         </div>
       </header>

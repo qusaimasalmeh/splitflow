@@ -121,60 +121,60 @@ export const LandingAuthView: React.FC = () => {
         </div>
 
         {/* Action Buttons */}
-        <div className="space-y-4 pt-8">
-<button
+        <div className="space-y-3 sm:space-y-4 pt-4 sm:pt-6">
+          <button
             onClick={runDemo}
-            className="w-full flex items-center justify-between p-4 rounded-2xl bg-white hover:bg-slate-50 transition-all border border-indigo-200 shadow-sm group"
+            className="w-full flex items-center justify-between p-3.5 sm:p-4 rounded-2xl bg-white hover:bg-slate-50 transition-all border border-indigo-200 shadow-sm group"
           >
-            <div className="flex items-center gap-4">
-              <div className="p-2 rounded-xl bg-indigo-50 text-indigo-500 group-hover:scale-110 transition-transform">
+            <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+              <div className="p-2 rounded-xl bg-indigo-50 text-indigo-500 group-hover:scale-110 transition-transform shrink-0">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-sparkles"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/></svg>
               </div>
-              <div className="text-left">
-                <div className="font-bold text-slate-800">{t('tryPopulatedDemo') || 'Live Demo'}</div>
-                <div className="text-xs text-slate-500 font-medium">{t('demoDescription') || 'See it with dummy data'}</div>
+              <div className="text-start min-w-0">
+                <div className="font-bold text-slate-800 text-sm sm:text-base truncate">{t('tryPopulatedDemo') || 'Live Demo'}</div>
+                <div className="text-xs text-slate-500 font-medium truncate">{t('demoDescription') || 'See it with dummy data'}</div>
               </div>
             </div>
-            <ArrowRight size={18} className="text-slate-400 group-hover:text-indigo-500 group-hover:translate-x-1 transition-all" />
+            <ArrowRight size={18} className="text-slate-400 group-hover:text-indigo-500 group-hover:translate-x-1 rtl:rotate-180 transition-all shrink-0 ms-2" />
           </button>
 
           <button
             onClick={handleRunLocal}
-            className="w-full flex items-center justify-between p-4 rounded-2xl bg-white hover:bg-slate-50 transition-all border border-slate-200 shadow-sm group"
+            className="w-full flex items-center justify-between p-3.5 sm:p-4 rounded-2xl bg-white hover:bg-slate-50 transition-all border border-slate-200 shadow-sm group"
           >
-            <div className="flex items-center gap-4">
-              <div className="p-2 rounded-xl bg-slate-100 text-slate-600 group-hover:scale-110 transition-transform">
+            <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+              <div className="p-2 rounded-xl bg-slate-100 text-slate-600 group-hover:scale-110 transition-transform shrink-0">
                 <Monitor className="w-5 h-5" />
               </div>
-              <div className="text-left">
-                <div className="font-bold text-slate-800">{t('runLocal')}</div>
-                <div className="text-xs text-slate-500 font-medium">{t('tryInstantly')}</div>
+              <div className="text-start min-w-0">
+                <div className="font-bold text-slate-800 text-sm sm:text-base truncate">{t('runLocal')}</div>
+                <div className="text-xs text-slate-500 font-medium truncate">{t('tryInstantly')}</div>
               </div>
             </div>
-            <ArrowRight size={18} className="text-slate-400 group-hover:text-emerald-500 group-hover:translate-x-1 transition-all" />
+            <ArrowRight size={18} className="text-slate-400 group-hover:text-emerald-500 group-hover:translate-x-1 rtl:rotate-180 transition-all shrink-0 ms-2" />
           </button>
 
           <button
             onClick={() => setShowLoginModal(true)}
-            className="w-full flex items-center justify-between p-4 rounded-2xl bg-emerald-500 hover:bg-emerald-600 transition-all border border-emerald-400 shadow-lg shadow-emerald-500/20 group"
+            className="w-full flex items-center justify-between p-3.5 sm:p-4 rounded-2xl bg-emerald-500 hover:bg-emerald-600 transition-all border border-emerald-400 shadow-lg shadow-emerald-500/20 group"
           >
-            <div className="flex items-center gap-4">
-              <div className="p-2 rounded-xl bg-white/20 text-white group-hover:scale-110 transition-transform">
+            <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+              <div className="p-2 rounded-xl bg-white/20 text-white group-hover:scale-110 transition-transform shrink-0">
                 <LogIn className="w-5 h-5" />
               </div>
-              <div className="text-left">
-                <div className="font-bold text-white">{t('signIn')}</div>
-                <div className="text-xs text-emerald-100 font-medium">{t('accessSharedGroups')}</div>
+              <div className="text-start min-w-0">
+                <div className="font-bold text-white text-sm sm:text-base truncate">{t('signIn')}</div>
+                <div className="text-xs text-emerald-100 font-medium truncate">{t('accessSharedGroups')}</div>
               </div>
             </div>
-            <ArrowRight size={18} className="text-emerald-100 group-hover:text-white group-hover:translate-x-1 transition-all" />
+            <ArrowRight size={18} className="text-emerald-100 group-hover:text-white group-hover:translate-x-1 rtl:rotate-180 transition-all shrink-0 ms-2" />
           </button>
         </div>
       </div>
 
       {showLoginModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-300">
-          <div className="bg-white p-6 rounded-3xl w-full max-w-sm shadow-2xl animate-in zoom-in-95 duration-300">
+          <div className="bg-white p-5 sm:p-6 rounded-3xl w-full max-w-sm shadow-2xl animate-in zoom-in-95 duration-300">
             <h2 className="text-xl font-black mb-1 text-slate-800">{t('selectAccount')}</h2>
             <p className="text-xs text-slate-500 font-medium mb-6">{t('chooseTestAccount')}</p>
             
@@ -183,16 +183,16 @@ export const LandingAuthView: React.FC = () => {
                 <button
                   key={user.id}
                   onClick={() => handleLogin(user)}
-                  className="w-full flex items-center gap-3 p-3 rounded-2xl hover:bg-slate-50 border border-transparent hover:border-slate-100 transition-all text-left group"
+                  className="w-full flex items-center gap-3 p-3 rounded-2xl hover:bg-slate-50 border border-transparent hover:border-slate-100 transition-all text-start group"
                 >
-                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-white font-bold shadow-sm group-hover:scale-105 transition-transform" style={{ backgroundColor: user.color }}>
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center text-white font-bold shadow-sm group-hover:scale-105 transition-transform shrink-0" style={{ backgroundColor: user.color }}>
                     {user.name.charAt(0)}
                   </div>
-                  <div>
-                    <div className="font-bold text-slate-800">{user.name}</div>
-                    <div className="text-xs text-slate-500 font-medium">{user.phoneNumber}</div>
+                  <div className="min-w-0">
+                    <div className="font-bold text-slate-800 truncate">{user.name}</div>
+                    <div className="text-xs text-slate-500 font-medium truncate">{user.phoneNumber}</div>
                   </div>
-                  <ChevronRight size={16} className="ml-auto text-slate-300 group-hover:text-emerald-500 transition-colors" />
+                  <ChevronRight size={16} className="ms-auto text-slate-300 group-hover:text-emerald-500 rtl:rotate-180 transition-colors shrink-0" />
                 </button>
               ))}
             </div>

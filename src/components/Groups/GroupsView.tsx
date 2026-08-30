@@ -145,24 +145,24 @@ export const GroupsView: React.FC = () => {
 
       {/* 1. Header with Actions */}
       <div className="flex items-center justify-between gap-2">
-        <div>
-          <h2 className="text-xl font-black tracking-tight text-slate-900">{t('groups')}</h2>
-          <p className="text-xs text-slate-600 font-medium">{t('manageGroupsSubtitle')}</p>
+        <div className="min-w-0">
+          <h2 className="text-xl font-black tracking-tight text-slate-900 truncate">{t('groups')}</h2>
+          <p className="text-xs text-slate-600 font-medium truncate">{t('manageGroupsSubtitle')}</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           <button
             onClick={() => setIsAddUserOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-2xl bg-white/60 backdrop-blur-md hover:bg-white/80 border border-slate-200 text-xs font-bold text-emerald-600 active:scale-95 transition-all shadow-sm"
+            className="flex items-center gap-1 px-2.5 sm:px-3 py-2 rounded-2xl bg-white/60 backdrop-blur-md hover:bg-white/80 border border-slate-200 text-xs font-bold text-emerald-600 active:scale-95 transition-all shadow-sm"
           >
             <UserPlus className="w-4 h-4" />
-            <span>{t('addMember')}</span>
+            <span className="hidden xs:inline">{t('addMember')}</span>
           </button>
           <button
             onClick={() => {
               setSelectedMemberIds(state.users.map((u) => u.id));
               setIsCreateGroupOpen(true);
             }}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-emerald-500 text-white text-xs font-black shadow-glow-teal hover:brightness-110 active:scale-95 transition-all"
+            className="flex items-center gap-1 px-3 sm:px-3.5 py-2 rounded-2xl bg-emerald-500 text-white text-xs font-black shadow-glow-teal hover:brightness-110 active:scale-95 transition-all"
           >
             <Plus className="w-4 h-4 stroke-[3]" />
             <span>{t('createGroup')}</span>
@@ -258,13 +258,13 @@ export const GroupsView: React.FC = () => {
               </div>
 
               {/* Member Avatars Stack */}
-              <div className="flex items-center justify-between pt-3 border-t border-slate-200">
+              <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-slate-200">
                 <div className="flex items-center -space-x-2 rtl:space-x-reverse overflow-hidden">
                   {members.map((m) => (
                     <div
                       key={m.id}
                       title={m.name}
-                      className="w-8 h-8 rounded-full border-2 border-white flex items-center justify-center text-xs font-bold text-white shadow-sm"
+                      className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 border-white flex items-center justify-center text-xs font-bold text-white shadow-sm"
                       style={{ backgroundColor: m.color || '#14b8a6' }}
                     >
                       {m.name.charAt(0)}
@@ -272,16 +272,16 @@ export const GroupsView: React.FC = () => {
                   ))}
                 </div>
 
-                <div className="flex items-center gap-1.5 text-xs text-slate-600 font-medium">
+                <div className="flex items-center gap-1.5 text-xs text-slate-600 font-medium ms-auto">
                   {isActive ? (
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-1.5">
                       <button 
                         type="button"
                         onClick={(e) => { e.stopPropagation(); setIsInviteUserOpen(true); }}
-                        className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors"
+                        className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors text-xs font-bold"
                       >
                         <Send className="w-3.5 h-3.5" />
-                        <span className="font-bold">{t('addInviteMember')}</span>
+                        <span>{t('addInviteMember')}</span>
                       </button>
                       <button 
                         type="button"
@@ -289,10 +289,10 @@ export const GroupsView: React.FC = () => {
                           e.stopPropagation(); 
                           leaveGroup(group.id); 
                         }}
-                        className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors"
+                        className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors text-xs font-bold"
                       >
                         <LogOut className="w-3.5 h-3.5" />
-                        <span className="font-bold">{t('leaveGroup')}</span>
+                        <span>{t('leaveGroup')}</span>
                       </button>
                     </div>
                   ) : (

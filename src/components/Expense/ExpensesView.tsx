@@ -112,36 +112,36 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({ onOpenQuickAdd }) =>
             return (
               <div
                 key={expense.id}
-                className="p-4 rounded-3xl bg-white/60 backdrop-blur-md border border-slate-200  shadow-sm hover:border-emerald-300 transition-all flex items-center justify-between gap-3"
+                className="p-3.5 sm:p-4 rounded-3xl bg-white/60 backdrop-blur-md border border-slate-200 shadow-sm hover:border-emerald-300 transition-all flex items-center justify-between gap-2.5 sm:gap-3"
               >
                 {/* Left icon / Payer */}
-                <div className="flex items-center gap-3 min-w-0">
+                <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
                   <div
-                    className="w-10 h-10 rounded-2xl flex items-center justify-center text-sm font-black text-white shadow-sm shrink-0"
+                    className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl flex items-center justify-center text-xs sm:text-sm font-black text-white shadow-sm shrink-0"
                     style={{ backgroundColor: payer?.color || '#14b8a6' }}
                   >
                     {payer?.name.charAt(0) || 'U'}
                   </div>
 
-                  <div className="min-w-0">
-                    <h4 className="text-sm font-bold text-slate-800 truncate">
+                  <div className="min-w-0 flex-1">
+                    <h4 className="text-xs sm:text-sm font-bold text-slate-800 truncate">
                       {expense.description}
                     </h4>
 
-                    <div className="flex flex-wrap items-center gap-2 text-[10px] text-slate-600 mt-0.5 font-medium">
-                      <span className="flex items-center gap-1 text-emerald-600">
-                        <UserCheck className="w-3 h-3" />
-                        <span>{payer?.name}</span>
+                    <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-[10px] text-slate-600 mt-0.5 font-medium">
+                      <span className="flex items-center gap-1 text-emerald-600 truncate max-w-[80px] sm:max-w-none">
+                        <UserCheck className="w-3 h-3 shrink-0" />
+                        <span className="truncate">{payer?.name}</span>
                       </span>
 
                       {group && (
                         <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-600">
-                          <GroupIcon className="w-3 h-3 text-emerald-500" />
-                          <span className="truncate max-w-[80px]">{group.name}</span>
+                          <GroupIcon className="w-3 h-3 text-emerald-500 shrink-0" />
+                          <span className="truncate max-w-[65px] sm:max-w-[100px]">{group.name}</span>
                         </span>
                       )}
 
-                      <span className="flex items-center gap-1 text-slate-600">
+                      <span className="flex items-center gap-1 text-slate-500 shrink-0">
                         <Calendar className="w-3 h-3" />
                         <span>{dateStr}</span>
                       </span>
@@ -150,20 +150,20 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({ onOpenQuickAdd }) =>
                 </div>
 
                 {/* Right Amount & Delete */}
-                <div className="flex items-center gap-3 shrink-0">
+                <div className="flex items-center gap-2 sm:gap-3 shrink-0">
                   <div className="text-end">
-                    <span className="text-base font-black text-emerald-600">
+                    <span className="text-sm sm:text-base font-black text-emerald-600 whitespace-nowrap">
                       {state.currency}
                       {expense.amount.toFixed(2)}
                     </span>
-                    <p className="text-[10px] text-slate-600 font-semibold">
+                    <p className="text-[10px] text-slate-500 font-semibold">
                       {expense.participants.length} split
                     </p>
                   </div>
 
                   <button
                     onClick={() => handleDelete(expense.id, expense.description)}
-                    className="p-2 rounded-xl text-slate-600 hover:text-rose-500 hover:bg-rose-50 transition-colors"
+                    className="p-1.5 sm:p-2 rounded-xl text-slate-400 hover:text-rose-500 hover:bg-rose-50 transition-colors"
                     aria-label={t('deleteExpense')}
                   >
                     <Trash2 className="w-4 h-4" />
