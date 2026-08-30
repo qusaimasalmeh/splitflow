@@ -396,31 +396,35 @@ export function generateShareSummary(
   const userMap = new Map<string, string>();
   state.users.forEach((u) => userMap.set(u.id, u.name));
 
-  let text = `${t('summaryTitle')}\n`;
+  const isRtl = state.language === 'he' || state.language === 'ar';
+  const RLM = isRtl ? '\u200F' : '';
+  const LRM = isRtl ? '\u200E' : '';
+
+  let text = `${RLM}${t('summaryTitle')}${RLM}\n`;
   text += `━━━━━━━━━━━━━━━━━━━━\n\n`;
 
   if (settlements.length === 0) {
-    text += `${t('summaryAllSettled')}\n\n`;
+    text += `${RLM}${t('summaryAllSettled')}${RLM}\n\n`;
   } else {
-    text += `${t('summaryWhoOwesWhom')}\n`;
+    text += `${RLM}${t('summaryWhoOwesWhom')}${RLM}\n`;
     settlements.forEach((s) => {
       const fromName = userMap.get(s.from) || t('summarySomeone');
       const toName = userMap.get(s.to) || t('summarySomeone');
       const badge = s.isCrossGroup ? ` ${t('summaryCrossGroup')}` : '';
-      text += `• *${fromName}* ${t('owes')} *${toName}*: ${currency}${s.amount.toFixed(2)}${badge}\n`;
+      text += `${RLM}• *${fromName}*${RLM} ${t('owes')} *${toName}*${RLM}: ${LRM}${currency}${s.amount.toFixed(2)}${RLM}${badge}\n`;
     });
     text += `\n`;
   }
 
-  text += `${t('summaryGroupsInvolved')}\n`;
+  text += `${RLM}${t('summaryGroupsInvolved')}${RLM}\n`;
   state.groups.forEach((g) => {
     const expenseTotal = state.expenses
       .filter((e) => e.groupId === g.id)
       .reduce((sum, e) => sum + e.amount, 0);
-    text += `• ${g.name} (${currency}${expenseTotal.toFixed(2)})\n`;
+    text += `${RLM}• ${g.name}${RLM}: ${LRM}${currency}${expenseTotal.toFixed(2)}${RLM}\n`;
   });
 
-  text += `\n${t('summaryShareLink')} \n${shareableUrl}\n`;
+  text += `\n${RLM}${t('summaryShareLink')}${RLM}\n${shareableUrl}\n`;
   return text;
 }
 
