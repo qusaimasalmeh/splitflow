@@ -387,11 +387,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
       ];
 
-      const constraints: PaymentConstraint[] = [
-        {
-          id: 'c_demo_1', type: 'blacklist', fromUserId: 'u_demo_bob', toUserId: 'u_demo_alice', reason: 'Bob cannot pay Alice directly'
-        }
-      ];
+      const constraints: PaymentConstraint[] = [];
 
       setRawState({
         ...defaultInitialState,
@@ -568,10 +564,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
       let targetGroupId = settlement.groupId;
       if (!targetGroupId) {
-        const sharedGroup = prev.groups.find(
-          (g) => g.memberIds.includes(settlement!.from) && g.memberIds.includes(settlement!.to)
-        );
-        targetGroupId = sharedGroup ? sharedGroup.id : (prev.activeGroupId || prev.groups[0]?.id || 'g_settle');
+        const activeGroupObj = prev.groups.find((g) => g.id === prev.activeGroupId);
+        if (activeGroupObj && activeGroupObj.memberIds.includes(settlement!.from) && activeGroupObj.memberIds.includes(settlement!.to)) {
+          targetGroupId = prev.activeGroupId!;
+        } else {
+          const sharedGroup = prev.groups.find(
+            (g) => g.memberIds.includes(settlement!.from) && g.memberIds.includes(settlement!.to)
+          );
+          targetGroupId = sharedGroup ? sharedGroup.id : (prev.activeGroupId || prev.groups[0]?.id || 'g_settle');
+        }
       }
 
       const settlementExpense: Expense = {
