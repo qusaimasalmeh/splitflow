@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
-import { AppState, User, Group, Expense, PaymentConstraint, AuditLog } from '../types';
+import { AppState, User, Group, Expense, PaymentConstraint, Settlement, AuditLog } from '../types';
 import { decodeStateFromUrlParam } from '../utils/urlEncoder';
 import { translations, Language } from '../i18n';
 import confetti from 'canvas-confetti';
@@ -52,7 +52,7 @@ interface AppContextType {
   deleteExpense: (expenseId: string) => void;
   addConstraint: (fromUserId: string, toUserId: string, reason?: string) => void;
   removeConstraint: (constraintId: string) => void;
-  toggleSettlementPaid: (settlementId: string) => void;
+  toggleSettlementPaid: (settlement: Settlement | string) => void;
   resetAllData: () => void;
   showToast: (text: string, type?: 'success' | 'info' | 'warning') => void;
   toasts: ToastMessage[];
@@ -550,23 +550,63 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }));
   }, []);
 
-  const toggleSettlementPaid = useCallback((settlementId: string) => {
+  const toggleSettlementPaid = useCallback((settlementInput: Settlement | string) => {
     setRawState((prev) => {
-      const current = prev.settlements.find((s) => s.id === settlementId);
-      const updated = prev.settlements.map((s) =>
-        s.id === settlementId ? { ...s, isPaid: !s.isPaid } : s
-      );
-
-      if (!current?.isPaid) {
-        fireCelebration();
+      let settlement: Settlement | undefined;
+      if (typeof settlementInput === 'string') {
+        settlement = prev.settlements.find((s) => s.id === settlementInput);
+      } else {
+        settlement = settlementInput;
       }
+
+      if (!settlement) return prev;
+
+      const debtor = prev.users.find((u) => u.id === settlement!.from);
+      const creditor = prev.users.find((u) => u.id === settlement!.to);
+      const debtorName = debtor?.name || 'Someone';
+      const creditorName = creditor?.name || 'Someone';
+
+      let targetGroupId = settlement.groupId;
+      if (!targetGroupId) {
+        const sharedGroup = prev.groups.find(
+          (g) => g.memberIds.includes(settlement!.from) && g.memberIds.includes(settlement!.to)
+        );
+        targetGroupId = sharedGroup ? sharedGroup.id : (prev.activeGroupId || prev.groups[0]?.id || 'g_settle');
+      }
+
+      const settlementExpense: Expense = {
+        id: `e_settle_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
+        groupId: targetGroupId,
+        description: `Settlement: ${debtorName} ➔ ${creditorName}`,
+        amount: settlement.amount,
+        payerId: settlement.from,
+        participants: [{ userId: settlement.to, amount: settlement.amount }],
+        date: Date.now(),
+        category: 'settlement',
+      };
+
+      const log: AuditLog = {
+        id: `log_${Date.now()}`,
+        timestamp: Date.now(),
+        type: 'direct_settlement',
+        description: {
+          en: `${debtorName} settled ${prev.currency}${settlement.amount.toFixed(2)} with ${creditorName}`,
+          ar: `قام ${debtorName} بتسوية ${prev.currency}${settlement.amount.toFixed(2)} مع ${creditorName}`,
+          he: `${debtorName} סילק/ה חוב של ${prev.currency}${settlement.amount.toFixed(2)} מול ${creditorName}`,
+        },
+        relatedGroupIds: targetGroupId ? [targetGroupId] : [],
+      };
+
+      fireCelebration();
 
       return {
         ...prev,
-        settlements: updated,
+        expenses: [settlementExpense, ...prev.expenses],
+        auditLogs: [log, ...prev.auditLogs],
       };
     });
-  }, [fireCelebration]);
+    showToast(t('settlementRecorded'), 'success');
+  }, [fireCelebration, showToast, t]);
 
   const resetAllData = useCallback(() => {
     setRawState((prev) => ({

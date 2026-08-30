@@ -278,15 +278,11 @@ export const SettlementView: React.FC = () => {
 
                   {/* Mark as Paid */}
                   <button
-                    onClick={() => toggleSettlementPaid(s.id)}
-                    className={`ms-auto flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all active:scale-95 ${
-                      isPaid
-                        ? 'bg-emerald-500 text-white shadow-sm'
-                        : 'bg-white hover:bg-slate-50 border border-slate-200 text-slate-600'
-                    }`}
+                    onClick={() => toggleSettlementPaid(s)}
+                    className="ms-auto flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all active:scale-95 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 shadow-sm"
                   >
-                    <CheckCircle className="w-3.5 h-3.5" />
-                    <span>{isPaid ? t('paid') : t('markAsPaid')}</span>
+                    <CheckCircle className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>{t('markAsPaid')}</span>
                   </button>
                 </div>
               </div>

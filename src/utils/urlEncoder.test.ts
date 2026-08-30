@@ -66,7 +66,7 @@ describe('URL State Serialization & WhatsApp Share Generator', () => {
       'https://splitflow.app'
     );
 
-    expect(shareText).toContain('SplitFlow');
+    expect(shareText).toContain('summaryTitle');
     expect(shareText).toContain('Bob');
     expect(shareText).toContain('Alice');
     expect(shareText).toContain('25');

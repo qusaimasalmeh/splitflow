@@ -35,6 +35,7 @@ export interface Translations {
   whoOwesWhom: string;
   owes: string;
   markAsPaid: string;
+  settlementRecorded: string;
   paid: string;
   payWithPayPal: string;
   payWithBit: string;
@@ -300,6 +301,7 @@ export const translations: Record<Language, Translations> = {
     whoOwesWhom: 'Who Owes Whom',
     owes: 'owes',
     markAsPaid: 'Mark as Paid',
+    settlementRecorded: 'Settlement payment recorded successfully!',
     paid: 'Paid',
     payWithPayPal: 'PayPal',
     payWithBit: 'Bit',
@@ -470,6 +472,7 @@ export const translations: Record<Language, Translations> = {
     whoOwesWhom: 'مين يدفع لمين؟',
     owes: 'مطلوب منه لـ',
     markAsPaid: 'تم السداد',
+    settlementRecorded: 'تم تسجيل السداد وتحديث الأرصدة بنجاح!',
     paid: 'مسدد',
     payWithPayPal: 'PayPal',
     payWithBit: 'Bit',
@@ -640,6 +643,7 @@ export const translations: Record<Language, Translations> = {
     whoOwesWhom: 'מי מעביר למי',
     owes: 'חייב/ת ל',
     markAsPaid: 'סמן כשולם',
+    settlementRecorded: 'ההעברה נרשמה והיתרות עודכנו בהצלחה!',
     paid: 'שולם',
     payWithPayPal: 'PayPal',
     payWithBit: 'Bit',
