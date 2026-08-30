@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { AppProvider } from './context/AppContext';
 import { Header } from './components/Layout/Header';
 import { BottomNav, ActiveTab } from './components/Layout/BottomNav';
@@ -10,6 +10,8 @@ import { QuickAddModal } from './components/Expense/QuickAddModal';
 import { ToastContainer } from './components/Common/ToastContainer';
 import { LandingAuthView } from './components/Auth/LandingAuthView';
 import { HowItWorksModal } from './components/Help/HowItWorksModal';
+import { SummaryView } from './components/Summary/SummaryView';
+import { decodeSummaryFromUrlParam } from './utils/urlEncoder';
 import { useApp } from './context/AppContext';
 
 const MainContent: React.FC = () => {
@@ -20,8 +22,6 @@ const MainContent: React.FC = () => {
 
   return (
     <div className="relative min-h-screen text-slate-900 flex flex-col font-sans overflow-x-hidden">
-      {/* Ambient Glassmorphism Background Glow Orbs Removed for flat design */}
-
       {/* Header */}
       <Header 
         onOpenSettings={() => setActiveTab('settings')} 
@@ -71,9 +71,37 @@ const MainContent: React.FC = () => {
 
 const AppContainer: React.FC = () => {
   const { state } = useApp();
+  const [isSummaryDismissed, setIsSummaryDismissed] = useState(false);
+
+  const summaryData = useMemo(() => {
+    if (typeof window === 'undefined') return null;
+    const urlParams = new URLSearchParams(window.location.search);
+    const sParam = urlParams.get('s') || urlParams.get('summary');
+    if (sParam) {
+      return decodeSummaryFromUrlParam(sParam);
+    }
+    return null;
+  }, []);
+
+  if (summaryData && !isSummaryDismissed) {
+    return (
+      <>
+        <SummaryView
+          summary={summaryData}
+          onOpenFullApp={() => setIsSummaryDismissed(true)}
+        />
+        <ToastContainer />
+      </>
+    );
+  }
 
   if (state.authStatus === 'landing') {
-    return <LandingAuthView />;
+    return (
+      <>
+        <LandingAuthView />
+        <ToastContainer />
+      </>
+    );
   }
 
   return <MainContent />;

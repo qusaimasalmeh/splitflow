@@ -3,7 +3,30 @@ import { AppState, Settlement, User, Group, Expense, PaymentConstraint } from '.
 import { Translations } from '../i18n';
 
 /**
- * Compact schema representation for lightweight URL sharing.
+ * Public Summary Data structure for ultra-compact summary links and payment hub.
+ */
+export interface PublicSummaryData {
+  t: string; // group title
+  c: string; // currency
+  tot: number; // total group expense
+  s: Array<{
+    f: string; // debtor name (from)
+    t: string; // creditor name (to)
+    a: number; // amount
+    p?: string; // creditor phone number (for Bit / PayBox)
+    pp?: string; // creditor paypal username
+    cg?: boolean; // is cross-group
+  }>;
+  e?: Array<{
+    d: string; // description
+    a: number; // amount
+    p: string; // payer name
+    sc?: number; // split count
+  }>;
+}
+
+/**
+ * Compact schema representation for full state sharing.
  */
 interface CompactState {
   u: Array<{ i: string; n: string; c?: string; p?: string; pp?: string }>;
@@ -23,7 +46,107 @@ interface CompactState {
 }
 
 /**
- * Compresses an AppState object into an ultra-compact URI-safe string.
+ * Encodes summary data into an ultra-short URI-safe string.
+ */
+export function encodeSummaryToUrlParam(data: PublicSummaryData): string {
+  try {
+    const minified: any = {
+      t: data.t,
+      c: data.c,
+      tot: data.tot,
+      s: data.s.map((s) => {
+        const item: any = { f: s.f, t: s.t, a: s.a };
+        if (s.p) item.p = s.p;
+        if (s.pp) item.pp = s.pp;
+        if (s.cg) item.cg = true;
+        return item;
+      }),
+    };
+    if (data.e && data.e.length > 0) {
+      minified.e = data.e.map((e) => ({ d: e.d, a: e.a, p: e.p, sc: e.sc }));
+    }
+    const jsonStr = JSON.stringify(minified);
+    return LZString.compressToEncodedURIComponent(jsonStr);
+  } catch (err) {
+    console.error('Failed to encode summary data:', err);
+    return '';
+  }
+}
+
+/**
+ * Decompresses and parses a URI-safe string into PublicSummaryData.
+ */
+export function decodeSummaryFromUrlParam(param: string): PublicSummaryData | null {
+  try {
+    if (!param) return null;
+    const decompressed = LZString.decompressFromEncodedURIComponent(param);
+    if (!decompressed) return null;
+    const parsed = JSON.parse(decompressed);
+
+    if (parsed && typeof parsed.t === 'string' && Array.isArray(parsed.s)) {
+      return parsed as PublicSummaryData;
+    }
+    return null;
+  } catch (err) {
+    console.error('Failed to decode summary param:', err);
+    return null;
+  }
+}
+
+/**
+ * Builds PublicSummaryData object from the current AppState & Settlements.
+ */
+export function createPublicSummary(
+  state: AppState,
+  settlements: Settlement[],
+  activeGroupId?: string | null
+): PublicSummaryData {
+  const userMap = new Map<string, User>();
+  state.users.forEach((u) => userMap.set(u.id, u));
+
+  const group = activeGroupId ? state.groups.find((g) => g.id === activeGroupId) : null;
+  const title = group ? group.name : state.groups[0]?.name || 'SplitFlow';
+
+  const relevantExpenses = activeGroupId
+    ? state.expenses.filter((e) => e.groupId === activeGroupId)
+    : state.expenses;
+
+  const total = relevantExpenses.reduce((sum, e) => sum + e.amount, 0);
+
+  const formattedSettlements = settlements.map((s) => {
+    const debtor = userMap.get(s.from);
+    const creditor = userMap.get(s.to);
+    return {
+      f: debtor?.name || 'Someone',
+      t: creditor?.name || 'Someone',
+      a: s.amount,
+      p: creditor?.phoneNumber,
+      pp: creditor?.payPalUsername,
+      cg: s.isCrossGroup,
+    };
+  });
+
+  const formattedExpenses = relevantExpenses.slice(0, 10).map((e) => {
+    const payer = userMap.get(e.payerId);
+    return {
+      d: e.description,
+      a: e.amount,
+      p: payer?.name || 'User',
+      sc: e.participants.length,
+    };
+  });
+
+  return {
+    t: title,
+    c: state.currency || '$',
+    tot: total,
+    s: formattedSettlements,
+    e: formattedExpenses,
+  };
+}
+
+/**
+ * Compresses full AppState object into an ultra-compact URI-safe string.
  */
 export function encodeStateToUrlParam(state: AppState): string {
   try {
@@ -70,7 +193,6 @@ export function encodeStateToUrlParam(state: AppState): string {
 
 /**
  * Decompresses and parses a URI-safe string back into AppState.
- * Supports both modern compact format and legacy verbose format.
  */
 export function decodeStateFromUrlParam(param: string): AppState | null {
   try {
@@ -150,7 +272,7 @@ export function decodeStateFromUrlParam(param: string): AppState | null {
 }
 
 /**
- * Returns the accurate full base URL of the app (respecting GitHub Pages base path).
+ * Returns the accurate full base URL of the app on GitHub Pages.
  */
 export function getAppBaseUrl(): string {
   if (typeof window === 'undefined') return 'https://qusaimasalmeh.github.io/splitflow/';
@@ -159,50 +281,8 @@ export function getAppBaseUrl(): string {
 }
 
 /**
- * Attempts to shorten a URL using public free shortener APIs with quick fallback.
- */
-export async function shortenUrl(longUrl: string): Promise<string> {
-  // 1. Try TinyURL API
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 2500);
-    const res = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(longUrl)}`, {
-      signal: controller.signal,
-    });
-    clearTimeout(timeoutId);
-    if (res.ok) {
-      const text = await res.text();
-      if (text && text.trim().startsWith('http')) {
-        return text.trim();
-      }
-    }
-  } catch (e) {
-    // Continue to fallback
-  }
-
-  // 2. Try is.gd API
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 2000);
-    const res = await fetch(`https://is.gd/create.php?format=simple&url=${encodeURIComponent(longUrl)}`, {
-      signal: controller.signal,
-    });
-    clearTimeout(timeoutId);
-    if (res.ok) {
-      const text = await res.text();
-      if (text && text.trim().startsWith('http')) {
-        return text.trim();
-      }
-    }
-  } catch (e) {
-    // Continue to fallback
-  }
-
-  return longUrl;
-}
-
-/**
  * Generates an informative, formatted text summary for sharing via WhatsApp or copy-pasting.
+ * Generates ultra-short summary links on our own domain.
  */
 export function generateShareSummary(
   state: AppState,
@@ -213,13 +293,14 @@ export function generateShareSummary(
   const currency = state.currency || '$';
   let shareableUrl: string;
 
-  if (baseUrlOrFullUrl && baseUrlOrFullUrl.includes('?data=')) {
+  if (baseUrlOrFullUrl && (baseUrlOrFullUrl.includes('?s=') || baseUrlOrFullUrl.includes('?data='))) {
     shareableUrl = baseUrlOrFullUrl;
   } else {
     const base = baseUrlOrFullUrl || getAppBaseUrl();
-    const encodedState = encodeStateToUrlParam(state);
+    const summaryData = createPublicSummary(state, settlements, state.activeGroupId);
+    const encodedSummary = encodeSummaryToUrlParam(summaryData);
     const separator = base.includes('?') ? '&' : '?';
-    shareableUrl = `${base}${separator}data=${encodedState}`;
+    shareableUrl = `${base}${separator}s=${encodedSummary}`;
   }
 
   const userMap = new Map<string, string>();
@@ -249,23 +330,6 @@ export function generateShareSummary(
     text += `• ${g.name} (${currency}${expenseTotal.toFixed(2)})\n`;
   });
 
-  text += `\n${t('summaryOpenEdit')} \n${shareableUrl}\n`;
+  text += `\n${t('summaryShareLink')} \n${shareableUrl}\n`;
   return text;
-}
-
-/**
- * Generates the share summary with an automatic tiny short URL.
- */
-export async function generateShareSummaryAsync(
-  state: AppState,
-  settlements: Settlement[],
-  t: (key: keyof Translations) => string
-): Promise<string> {
-  const base = getAppBaseUrl();
-  const encodedState = encodeStateToUrlParam(state);
-  const separator = base.includes('?') ? '&' : '?';
-  const longUrl = `${base}${separator}data=${encodedState}`;
-
-  const shortLink = await shortenUrl(longUrl);
-  return generateShareSummary(state, settlements, t, shortLink);
 }

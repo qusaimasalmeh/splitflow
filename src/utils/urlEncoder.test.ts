@@ -1,5 +1,12 @@
 import { describe, it, expect } from 'vitest';
-import { encodeStateToUrlParam, decodeStateFromUrlParam, generateShareSummary } from './urlEncoder';
+import {
+  encodeStateToUrlParam,
+  decodeStateFromUrlParam,
+  encodeSummaryToUrlParam,
+  decodeSummaryFromUrlParam,
+  createPublicSummary,
+  generateShareSummary,
+} from './urlEncoder';
 import { AppState } from '../types';
 
 describe('URL State Serialization & WhatsApp Share Generator', () => {
@@ -52,12 +59,29 @@ describe('URL State Serialization & WhatsApp Share Generator', () => {
     expect(decoded?.expenses[0].amount).toBe(50);
   });
 
+  it('encodes and decodes PublicSummaryData into ultra-short URL param', () => {
+    const summary = createPublicSummary(
+      sampleState,
+      [{ id: 's1', from: 'u2', to: 'u1', amount: 25, isCrossGroup: false }]
+    );
+    const encoded = encodeSummaryToUrlParam(summary);
+    expect(typeof encoded).toBe('string');
+    expect(encoded.length).toBeLessThan(200);
+
+    const decoded = decodeSummaryFromUrlParam(encoded);
+    expect(decoded).not.toBeNull();
+    expect(decoded?.t).toBe('Roadtrip');
+    expect(decoded?.s[0].f).toBe('Bob');
+    expect(decoded?.s[0].t).toBe('Alice');
+    expect(decoded?.s[0].a).toBe(25);
+  });
+
   it('returns null safely for invalid or corrupted string', () => {
     const decoded = decodeStateFromUrlParam('invalid-corrupted-data!!!');
     expect(decoded).toBeNull();
   });
 
-  it('generates a clean WhatsApp share text with state URL link', () => {
+  it('generates a clean WhatsApp share text with short summary URL link', () => {
     const mockT = (key: any) => key;
     const shareText = generateShareSummary(
       sampleState,
@@ -70,6 +94,6 @@ describe('URL State Serialization & WhatsApp Share Generator', () => {
     expect(shareText).toContain('Bob');
     expect(shareText).toContain('Alice');
     expect(shareText).toContain('25');
-    expect(shareText).toContain('https://splitflow.app?data=');
+    expect(shareText).toContain('https://splitflow.app?s=');
   });
 });

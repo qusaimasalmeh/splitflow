@@ -20,6 +20,13 @@ export interface Translations {
   description: string;
   splitEqually: string;
   splitAmongAll: string;
+  settlementSummary: string;
+  payDirectly: string;
+  payTo: string;
+  viewFullApp: string;
+  createNewGroup: string;
+  expensesList: string;
+  summaryShareLink: string;
   splitAmongCount: string;
   splitWithCount: string;
   splitWith: string;
@@ -293,6 +300,13 @@ export const translations: Record<Language, Translations> = {
     description: 'For what?',
     splitEqually: 'Split equally among members',
     splitAmongAll: 'Split among all ({count})',
+    settlementSummary: 'Settlement & Payment Summary',
+    payDirectly: 'Pay Directly',
+    payTo: 'Pay to',
+    viewFullApp: 'Open in SplitFlow Editor',
+    createNewGroup: 'Create Your Own Group',
+    expensesList: 'Expenses Breakdown',
+    summaryShareLink: '*View & Pay on SplitFlow:*',
     splitAmongCount: 'Split among {count} of {total}',
     splitWithCount: 'Split with ({count})',
     splitWith: 'Split with:',
@@ -471,6 +485,13 @@ export const translations: Record<Language, Translations> = {
     description: 'حق إيش؟',
     splitEqually: 'تقسيم بالتساوي بين الجميع',
     splitAmongAll: 'مقسم بين الجميع ({count})',
+    settlementSummary: 'ملخص التسوية والدفع',
+    payDirectly: 'الدفع مباشرة',
+    payTo: 'الدفع إلى',
+    viewFullApp: 'فتح في محرر SplitFlow',
+    createNewGroup: 'إنشاء مجموعة خاصة بك',
+    expensesList: 'تفاصيل المصاريف',
+    summaryShareLink: '*للدفع وعرض الملخص:*',
     splitAmongCount: 'مقسم بين {count} من أصل {total}',
     splitWithCount: 'التقسيم مع ({count})',
     splitWith: 'التقسيم مع:',
@@ -649,6 +670,13 @@ export const translations: Record<Language, Translations> = {
     description: 'עבור מה?',
     splitEqually: 'חלוקה שווה בין החברים',
     splitAmongAll: 'מחולק בין כולם ({count})',
+    settlementSummary: 'סיכום התחשבנות ותשלום',
+    payDirectly: 'תשלום ישיר',
+    payTo: 'תשלום ל',
+    viewFullApp: 'פתח ב-SplitFlow המלא',
+    createNewGroup: 'צור קבוצה משלך',
+    expensesList: 'פירוט ההוצאות',
+    summaryShareLink: '*לתשלום וצפייה בסיכום:*',
     splitAmongCount: 'מחולק בין {count} מתוך {total}',
     splitWithCount: 'חלוקה עם ({count})',
     splitWith: 'חלוקה עם:',
